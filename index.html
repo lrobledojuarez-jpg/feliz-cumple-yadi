@@ -1,39 +1,158 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>¡Feliz Cumpleaños Yadi!</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ruleta Navideña 3D 🎄</title>
   <style>
     body {
-      background: linear-gradient(135deg, #ffdde1, #ee9ca7);
-      font-family: 'Comic Sans MS', cursive, sans-serif;
-      text-align: center;
-      color: #4a004e;
+      background: radial-gradient(circle at center, #004400 0%, #990000 100%);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: "Poppins", sans-serif;
+      color: #fff;
       margin: 0;
-      padding: 0;
+      text-align: center;
     }
+
     h1 {
-      margin-top: 50px;
-      font-size: 3em;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+      margin-bottom: 20px;
+      font-size: 2em;
+      text-shadow: 2px 2px 6px #000;
     }
-    img {
-      width: 300px;
-      max-width: 80%;
-      border-radius: 20px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      margin: 30px 0;
+
+    .ruleta-container {
+      position: relative;
     }
-    p {
+
+    .ruleta {
+      position: relative;
+      width: 350px;
+      height: 350px;
+      border-radius: 50%;
+      border: 8px solid #ffd700;
+      overflow: hidden;
+      background: conic-gradient(
+        #ff0000 0deg 120deg,
+        #006400 120deg 240deg,
+        #ffd700 240deg 360deg
+      );
+      box-shadow:
+        inset 0 5px 15px #00000055,
+        0 0 40px 10px rgba(255, 215, 0, 0.4),
+        0 8px 30px rgba(255, 215, 0, 0.6);
+      transform: perspective(800px) rotateX(10deg);
+      transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1);
+    }
+
+    #flecha {
+      position: absolute;
+      top: -30px;
+      left: calc(50% - 20px);
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 40px solid gold;
+      filter: drop-shadow(0 0 10px gold);
+      z-index: 10;
+    }
+
+    .emoji {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform-origin: center;
+      font-size: 2.5em;
+      pointer-events: none;
+      transition: filter 0.3s;
+    }
+
+    .e1 { transform: rotate(60deg) translateY(-155px); }
+    .e2 { transform: rotate(180deg) translateY(-155px); }
+    .e3 { transform: rotate(300deg) translateY(-155px); }
+
+    @keyframes brillar {
+      0%, 100% { filter: drop-shadow(0 0 5px gold) brightness(1); }
+      50% { filter: drop-shadow(0 0 15px #fff) brightness(1.5); }
+    }
+
+    .ruleta.girando .emoji {
+      animation: brillar 0.8s infinite ease-in-out;
+    }
+
+    #btnGirar {
+      margin-top: 30px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(145deg, #ffd700, #ffb700);
+      color: #b30000;
+      font-weight: bold;
+      font-size: 1.2em;
+      cursor: pointer;
+      box-shadow: 0 4px 8px #00000066, inset 0 2px 4px #ffffff99;
+      transition: 0.3s;
+    }
+
+    #btnGirar:hover {
+      background: linear-gradient(145deg, #ffe866, #ffc700);
+      transform: scale(1.05);
+    }
+
+    #resultado {
+      margin-top: 20px;
       font-size: 1.3em;
-      color: #700070;
+      text-shadow: 1px 1px 3px #000;
     }
   </style>
 </head>
 <body>
-  <h1>🎉 ¡Feliz cumpleaños, Yadi! 🎂</h1>
-  <img src="R.jpg" alt="Feliz cumpleaños Piolín">
-  <p>Ten un excelente dia n.n </p>
+  <h1>🎄 Ruleta Navideña 3D 🎅</h1>
+
+  <div class="ruleta-container">
+    <div id="flecha"></div>
+    <div class="ruleta" id="ruleta">
+      <div class="emoji e1">🎅</div>
+      <div class="emoji e2">🎄</div>
+      <div class="emoji e3">🎁</div>
+    </div>
+  </div>
+
+  <button id="btnGirar">🍀 Girar Ruleta</button>
+  <div id="resultado"></div>
+
+  <script>
+    const ruleta = document.getElementById("ruleta");
+    const sectores = ["🎅", "🎄", "🎁"];
+    let girando = false;
+
+    document.getElementById("btnGirar").addEventListener("click", () => {
+      if (girando) return;
+      girando = true;
+      ruleta.classList.add("girando");
+
+      // Girar: cambiar de +3600° a + varias vueltas + ángulo aleatorio
+      const vueltas = 10; // cambiar número de vueltas si lo deseas
+      const gradosAleatorios = Math.floor(Math.random() * 360);
+      const grados = vueltas * 360 + gradosAleatorios;
+      ruleta.style.transform = `perspective(800px) rotateX(10deg) rotate(${grados}deg)`;
+
+      setTimeout(() => {
+        const anguloFinal = gradosAleatorios % 360; 
+        // Cada sector ocupa 120° => calcular índice
+        const valorSector = Math.floor(anguloFinal / 120);
+        // Invertir para que coincida con flecha al tope superior
+        const index = (sectores.length - 1) - valorSector;
+        document.getElementById("resultado").innerHTML =
+          `🎉 Resultado: <strong>${sectores[index]}</strong> 🎁`;
+        ruleta.classList.remove("girando");
+        girando = false;
+      }, 4500);
+    });
+  </script>
 </body>
 </html>
