@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🎄Ruleta Navideña🎄</title>
+  <title>Ruleta Navideña 3D 🎄</title>
+
   <style>
     body {
       background: radial-gradient(circle at center, #004400 0%, #990000 100%);
@@ -66,24 +67,26 @@
       top: 50%;
       left: 50%;
       transform-origin: center;
-      font-size: 4em; /* AUMENTADO */
+      font-size: 3.4em;
       pointer-events: none;
-      width: 1em;
-      height: 1em;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: -0.5em; /* CENTRADO MEJORADO */
     }
 
-    /* Mejor centrado ajustando la distancia radial */
-    .e1 { transform: rotate(60deg) translateY(-100px) rotate(-60deg); }
-    .e2 { transform: rotate(180deg) translateY(-100px) rotate(-180deg); }
-    .e3 { transform: rotate(300deg) translateY(-100px) rotate(-300deg); }
+    .e1 { transform: rotate(60deg) translateY(-100px); }
+    .e2 { transform: rotate(180deg) translateY(-100px); }
+    .e3 { transform: rotate(300deg) translateY(-100px); }
 
     @keyframes brillar {
       0%, 100% { filter: drop-shadow(0 0 5px gold) brightness(1); }
       50% { filter: drop-shadow(0 0 15px #fff) brightness(1.5); }
+    }
+
+    .ruleta.girando {
+      animation: girarGlow 0.3s infinite alternate;
+    }
+
+    @keyframes girarGlow {
+      0% { filter: drop-shadow(0 0 5px gold); }
+      100% { filter: drop-shadow(0 0 20px white); }
     }
 
     .ruleta.girando .emoji {
@@ -117,7 +120,8 @@
   </style>
 </head>
 <body>
-  <h1>🎁Ruleta Navideña🎁</h1>
+
+  <h1>🎄 Ruleta Navideña 3D 🎅</h1>
 
   <div class="ruleta-container">
     <div id="flecha"></div>
@@ -131,32 +135,71 @@
   <button id="btnGirar">🍀 Girar Ruleta</button>
   <div id="resultado"></div>
 
+  <!-- SONIDO -->
+  <audio id="spinSound" src="spin.wav" preload="auto"></audio>
+
   <script>
     const ruleta = document.getElementById("ruleta");
+    const spinSound = document.getElementById("spinSound");
+
+    // Sectores
     const sectores = ["🎅", "🎄", "🎁"];
+
+    // Lista de ganadores
+    const ganadores = [
+      "QR03", "QR07", "QR10", "QR14", "QR21",
+      "QR26", "QR34", "QR39", "QR42", "QR49"
+    ];
+
+    // Obtener parámetro ID
+    const params = new URLSearchParams(window.location.search);
+    const idQR = params.get("id") || "SIN-ID";
+
+    console.log("ID Detectado:", idQR);
+
     let girando = false;
 
     document.getElementById("btnGirar").addEventListener("click", () => {
       if (girando) return;
       girando = true;
+
+      // Activar efectos
+      spinSound.currentTime = 0;
+      spinSound.play();
       ruleta.classList.add("girando");
 
       const vueltas = 10;
-      const gradosAleatorios = Math.floor(Math.random() * 360);
-      const grados = vueltas * 360 + gradosAleatorios;
-      ruleta.style.transform = `perspective(800px) rotateX(10deg) rotate(${grados}deg)`;
+      let grados;
+
+      // Si es ganador → que caiga en 🎁 sí o sí
+      if (ganadores.includes(idQR)) {
+        console.log("→ QR GANADOR");
+        grados = vueltas * 360 + 250; // 240-360 es el sector de 🎁
+      } else {
+        // Normal aleatorio
+        const gradosAleatorios = Math.floor(Math.random() * 360);
+        grados = vueltas * 360 + gradosAleatorios;
+      }
+
+      ruleta.style.transform =
+        `perspective(800px) rotateX(10deg) rotate(${grados}deg)`;
 
       setTimeout(() => {
-        const anguloFinal = gradosAleatorios % 360;
+        let anguloFinal = grados % 360;
+
+        // Sector de 120°
         const valorSector = Math.floor(anguloFinal / 120);
         const index = (sectores.length - 1) - valorSector;
+
         document.getElementById("resultado").innerHTML =
-          `🎉 Resultado: <strong>${sectores[index]}</strong> 🎁`;
+          `🎉 Resultado: <strong>${sectores[index]}</strong>`;
+
         ruleta.classList.remove("girando");
         girando = false;
+
       }, 4500);
     });
   </script>
+
 </body>
 </html>
-
