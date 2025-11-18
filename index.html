@@ -66,17 +66,16 @@
       top: 50%;
       left: 50%;
       transform-origin: center;
-      font-size: 4em; /* AUMENTADO */
+      font-size: 4em;
       pointer-events: none;
       width: 1em;
       height: 1em;
       display: flex;
       justify-content: center;
       align-items: center;
-      margin: -0.5em; /* CENTRADO MEJORADO */
+      margin: -0.5em;
     }
 
-    /* Mejor centrado ajustando la distancia radial */
     .e1 { transform: rotate(60deg) translateY(-100px) rotate(-60deg); }
     .e2 { transform: rotate(180deg) translateY(-100px) rotate(-180deg); }
     .e3 { transform: rotate(300deg) translateY(-100px) rotate(-300deg); }
@@ -131,27 +130,40 @@
   <button id="btnGirar">🍀 Girar Ruleta</button>
   <div id="resultado"></div>
 
+  <!-- 🔊 AUDIO DE GIRO -->
+  <audio id="audioSpin" src="spin.wav" preload="auto"></audio>
+
   <script>
     const ruleta = document.getElementById("ruleta");
+    const audioSpin = document.getElementById("audioSpin");
     const sectores = ["🎅", "🎄", "🎁"];
     let girando = false;
 
     document.getElementById("btnGirar").addEventListener("click", () => {
       if (girando) return;
       girando = true;
+
+      // 🔊 REPRODUCIR AUDIO
+      audioSpin.currentTime = 0;
+      audioSpin.play().catch(e => console.log("Autoplay bloqueado:", e));
+
       ruleta.classList.add("girando");
 
       const vueltas = 10;
       const gradosAleatorios = Math.floor(Math.random() * 360);
       const grados = vueltas * 360 + gradosAleatorios;
-      ruleta.style.transform = `perspective(800px) rotateX(10deg) rotate(${grados}deg)`;
+
+      ruleta.style.transform =
+        `perspective(800px) rotateX(10deg) rotate(${grados}deg)`;
 
       setTimeout(() => {
         const anguloFinal = gradosAleatorios % 360;
         const valorSector = Math.floor(anguloFinal / 120);
         const index = (sectores.length - 1) - valorSector;
+
         document.getElementById("resultado").innerHTML =
           `🎉 Resultado: <strong>${sectores[index]}</strong> 🎁`;
+
         ruleta.classList.remove("girando");
         girando = false;
       }, 4500);
@@ -159,4 +171,3 @@
   </script>
 </body>
 </html>
-
